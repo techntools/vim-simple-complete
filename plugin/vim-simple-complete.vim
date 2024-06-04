@@ -7,7 +7,6 @@ let g:vsc_completion_command = get(g:, 'vsc_completion_command', "\<C-N>")
 let g:vsc_reverse_completion_command = get(g:, 'vsc_reverse_completion_command', "\<C-P>")
 let g:vsc_tab_complete = get(g:, 'vsc_tab_complete', 1)
 let g:vsc_type_complete = get(g:, 'vsc_type_complete', 1)
-let g:vsc_type_complete_length = get(g:, 'vsc_type_complete_length', 3)
 let g:vsc_pattern = get(g:, 'vsc_pattern', '\k')
 
 fun! s:TabCompletePlugin()
@@ -28,17 +27,11 @@ fun! s:CurrentChar()
 endfun
 
 fun! s:TypeCompletePlugin()
-    set completeopt+=menu
-    set completeopt+=menuone
-    set completeopt+=noselect
-    set pumheight=10
-    let s:vsc_typed_length = 0
     imap <silent> <expr> <plug>(TypeCompleteCommand) <sid>TypeCompleteCommand()
 
     augroup TypeCompletePlugin
         autocmd!
         autocmd InsertCharPre * noautocmd call s:TypeComplete()
-        autocmd InsertEnter * let s:vsc_typed_length = 0
     augroup END
 
     fun! s:TypeCompleteCommand()
@@ -46,18 +39,11 @@ fun! s:TypeCompletePlugin()
     endfun
 
     fun! s:TypeComplete()
-        if v:char !~ g:vsc_pattern
-            let s:vsc_typed_length = 0
-            return
-        endif
-
-        let s:vsc_typed_length += 1
-
         if !g:vsc_type_complete || pumvisible()
             return
         endif
 
-        if s:vsc_typed_length == g:vsc_type_complete_length
+        if v:char =~# g:vsc_pattern
             call feedkeys("\<plug>(TypeCompleteCommand)", 'i')
         endif
     endfun
