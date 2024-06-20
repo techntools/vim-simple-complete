@@ -1,6 +1,7 @@
 ﻿if exists("g:loaded_vim_simple_complete")
   finish
 endif
+
 let g:loaded_vim_simple_complete = 1
 
 let g:vsc_completion_command = get(g:, 'vsc_completion_command', "\<C-N>")
@@ -9,34 +10,32 @@ let g:vsc_tab_complete = get(g:, 'vsc_tab_complete', 1)
 let g:vsc_type_complete = get(g:, 'vsc_type_complete', 1)
 let g:vsc_pattern = get(g:, 'vsc_pattern', '\k')
 
+fun! s:CurrentChar()
+    return matchstr(getline('.'), '.\%' . col('.') . 'c')
+endfun
+
 fun! s:TabCompletePlugin()
     inoremap <expr> <Tab> <SID>TabComplete(0)
     inoremap <expr> <S-Tab> <SID>TabComplete(1)
 
     fun! s:TabComplete(reverse)
         if s:CurrentChar() =~ g:vsc_pattern || pumvisible()
-            return a:reverse ? g:vsc_reverse_completion_command : g:vsc_completion_command
+            call feedkeys("\<cmd>set completeopt+=fuzzycollect\<cr>")
+            call feedkeys(a:reverse ? g:vsc_reverse_completion_command : g:vsc_completion_command, 'n')
+            call feedkeys("\<cmd>set completeopt-=fuzzycollect\<cr>")
         else
-            return "\<Tab>"
+            call feedkeys("\<Tab>", 'n')
         endif
+
+        return ''
     endfun
 endfun
 
-fun! s:CurrentChar()
-    return matchstr(getline('.'), '.\%' . col('.') . 'c')
-endfun
-
 fun! s:TypeCompletePlugin()
-    imap <silent> <expr> <plug>(TypeCompleteCommand) <sid>TypeCompleteCommand()
-
     augroup TypeCompletePlugin
         autocmd!
         autocmd InsertCharPre * noautocmd call s:TypeComplete()
     augroup END
-
-    fun! s:TypeCompleteCommand()
-        return g:vsc_completion_command
-    endfun
 
     fun! s:TypeComplete()
         if !g:vsc_type_complete || pumvisible()
@@ -44,7 +43,7 @@ fun! s:TypeCompletePlugin()
         endif
 
         if v:char =~# g:vsc_pattern
-            call feedkeys("\<plug>(TypeCompleteCommand)", 'i')
+            call feedkeys(g:vsc_completion_command, 'n')
         endif
     endfun
 endfun
