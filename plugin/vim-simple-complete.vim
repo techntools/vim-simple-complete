@@ -20,14 +20,10 @@ fun! s:TabCompletePlugin()
 
     fun! s:TabComplete(reverse)
         if s:CurrentChar() =~ g:vsc_pattern || pumvisible()
-            call feedkeys("\<cmd>set completeopt+=fuzzycollect\<cr>")
-            call feedkeys(a:reverse ? g:vsc_reverse_completion_command : g:vsc_completion_command, 'n')
-            call feedkeys("\<cmd>set completeopt-=fuzzycollect\<cr>")
+            return a:reverse ? g:vsc_reverse_completion_command : g:vsc_completion_command
         else
-            call feedkeys("\<Tab>", 'n')
+            return "\<Tab>"
         endif
-
-        return ''
     endfun
 endfun
 
