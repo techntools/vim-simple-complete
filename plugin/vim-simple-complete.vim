@@ -19,7 +19,7 @@ fun! s:TabCompletePlugin()
     inoremap <expr> <S-Tab> <SID>TabComplete(1)
 
     fun! s:TabComplete(reverse)
-        if s:CurrentChar() =~ g:vsc_pattern || pumvisible()
+        if s:CurrentChar() =~? g:vsc_pattern || pumvisible()
             return a:reverse ? g:vsc_reverse_completion_command : g:vsc_completion_command
         else
             return "\<Tab>"
@@ -38,8 +38,8 @@ fun! s:TypeCompletePlugin()
             return
         endif
 
-        if v:char =~# g:vsc_pattern
-            call feedkeys(g:vsc_completion_command, 'n')
+        if v:char =~? g:vsc_pattern
+            call feedkeys(g:vsc_completion_command, 'i')
         endif
     endfun
 endfun
