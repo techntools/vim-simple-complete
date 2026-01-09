@@ -19,8 +19,13 @@ fun! s:TabCompletePlugin()
     inoremap <expr> <S-Tab> <SID>TabComplete(1)
 
     fun! s:TabComplete(reverse)
-        if s:CurrentChar() =~? g:vsc_pattern || pumvisible()
+        if pumvisible()
             return a:reverse ? g:vsc_reverse_completion_command : g:vsc_completion_command
+        elseif s:CurrentChar() =~? g:vsc_pattern
+            call feedkeys("\<cmd>set completeopt-=fuzzy\<cr>")
+            call feedkeys(a:reverse ? g:vsc_reverse_completion_command : g:vsc_completion_command, 'n')
+            call feedkeys("\<cmd>set completeopt+=fuzzy\<cr>")
+            return ''
         else
             return "\<Tab>"
         endif
@@ -39,7 +44,9 @@ fun! s:TypeCompletePlugin()
         endif
 
         if v:char =~? g:vsc_pattern
-            call feedkeys(g:vsc_completion_command, 'i')
+            call feedkeys("\<cmd>set completeopt-=fuzzy\<cr>")
+            call feedkeys(g:vsc_completion_command, 'n')
+            call feedkeys("\<cmd>set completeopt+=fuzzy\<cr>")
         endif
     endfun
 endfun
